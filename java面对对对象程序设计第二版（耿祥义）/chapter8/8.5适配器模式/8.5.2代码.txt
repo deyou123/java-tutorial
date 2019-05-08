@@ -1,0 +1,82 @@
+Application.java
+public class Application{
+   public static void main(String args[]){
+      AlternateCurrent aElectric =new PowerCompany(); //交流电
+      Wash wash =new Wash();
+      wash.turnOn(aElectric); //洗衣机使用交流电
+      //对交流电aElectric进行适配得到直流电dElectric: 
+      DirectCurrent dElectric = new ElectricAdapter(aElectric); //将交流电适配成直流电 
+      Recorder recorder =new Recorder();
+      recorder.turnOn(dElectric); //录音机使用直流电
+   }
+}
+class PowerCompany implements AlternateCurrent { //交流电提供者
+    public String giveAlternateCurrent(){
+       return "10101010101010101010"; //用这样的串表示交流电
+    }
+}
+class Wash { //洗衣机使用交流电
+   String name;
+   Wash(){
+     name="洗衣机";
+   }
+   Wash(String s){
+     name=s;
+   }
+   public void turnOn(AlternateCurrent a){
+      String s=a.giveAlternateCurrent();
+      System.out.println(name+"使用交流电:\n"+s);
+      System.out.println("开始洗衣物。");
+   }
+}
+class Recorder { //录音机使用直流电
+   String name;
+   Recorder(){
+      name="录音机";
+   }
+   Recorder(String s){
+      name=s;
+   }
+   public void turnOn(DirectCurrent a){
+      String s=a.giveDirectCurrent();
+      System.out.println(name+"使用直流电:\n"+s);
+      System.out.println("开始录音。");
+   }
+}
+
+
+1．	目标（Target）
+
+DirectCurrent.java
+public interface DirectCurrent{
+   public String giveDirectCurrent (); 
+}
+
+2．被适配者
+
+AlternateCurrent.java
+public interface AlternateCurrent{
+   public String giveAlternateCurrent(); 
+}
+
+3．适配器
+
+ElectricAdapter.java
+public class ElectricAdapter implements DirectCurrent{
+   AlternateCurrent out;
+   ElectricAdapter(AlternateCurrent out){
+       this.out=out;
+   }
+   public String giveDirectCurrent(){
+     String  m = out.giveAlternateCurrent();  //先由out得到交流电
+     StringBuffer str =new StringBuffer(m);
+     //以下将交流电转为直流电：
+     for(int i=0;i<str.length();i++) {
+        if(str.charAt(i)=='0') {
+           str.setCharAt(i,'1');
+        }
+     }
+     m =new String(str);
+     return m;  //返回直流电
+   }
+}
